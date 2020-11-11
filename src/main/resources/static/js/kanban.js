@@ -1,4 +1,24 @@
 
+
+
+
+
+
+/*
+
+본인이 작성한 부분에 주석을 달아놓았습니다.
+김선 으로 검색하면 편하게 찾아보실 수 있습니다.
+
+*/
+
+
+
+
+
+
+
+
+
 //칸반 버튼 색 바꾸기
 if(bgColor == '5f76e8') {
 	$('.kanban-list-add').attr("class", 'kanban-list-add btn-primary');
@@ -103,7 +123,10 @@ var endListNo = "";
 var startCardIDX = "";
 var endCardIDX = "";
 
-//카드 드래그 앤 드롭
+/**
+ * @작성자 : 김선
+ * @설명 : 칸반 카드에 Sortable 적용
+ **/  
  $('.divForDragNDrop').sortable({
 	 connectWith: '.divForDragNDrop',
 	 start( event, ui ){
@@ -161,11 +184,6 @@ var endCardIDX = "";
        		 });
        	 }
      	
-//    	kanbanListArr = ui.item.parent().find('.kanban-list-content');
-//    	
-//    	$.each(kanbanListArr, function(index, item){
-//    		$(item).attr('data-listindex', index); // 재정렬된 요소에 index 속성 새로 부여하기
-//    	});
 		 
 	 }
 	 
@@ -173,8 +191,10 @@ var endCardIDX = "";
  
  
  
-
-//리스트 그래그 앤 드롭 
+/**
+ * @작성자 : 김선
+ * @설명 : 칸반 리스트에 Sortable 적용
+ **/  
  $('#kanban').sortable({ // 상위요소
    	 items: ".kanban-list-wrapper",
         itemOrientation: "horizontal",
@@ -189,7 +209,6 @@ var endCardIDX = "";
 	       	 
 	       	 if(!(startListIDX == endListIDX)){
 	       		 
-	       		
 	       		 $.ajax({
 	       				url: "resortKanbanList.ajax",
 	       				data: {
@@ -256,7 +275,7 @@ $(document).on('click', '#addlist', function() {
     $('#kanban').sortable({ // 상위요소
    	 items: ".kanban-list-wrapper",
         itemOrientation: "horizontal",
-        handle: ".kanban-list-title", // 이부분 주석처리하면 버튼도 움직임..
+        handle: ".kanban-list-title", 
         moveItemOnDrop: true,
         
         start( event, ui ){
@@ -315,7 +334,7 @@ $(document).on('click', '.kanban-addlistCancle', function(){
 /**
  * @함수명 : 익명함수
  * @작성자 : 김선
- * @설명 : 칸반 리스트 추가 완료
+ * @설명 : 칸반 리스트 추가 완료 후 변경사항 비동기 적용
  **/         
 $('#kanban').on('click', '.kanban-addlistdone', function() {
 	
@@ -331,7 +350,7 @@ $('#kanban').on('click', '.kanban-addlistdone', function() {
     
     let kanbanListIndex = newKanbanList.index();
     
-	if(listName == "") {
+	if(listName == "") { // 리스트 제목을 입력하지 않은 경우
         alert('list title을 입력하세요.');        
         titleInputBox.focus(); //input on focus       
 		return;
@@ -376,7 +395,7 @@ $('#kanban').on('click', '.kanban-addlistdone', function() {
 
 /**
  * @함수명 : 익명함수
- * @작성자 : 김선
+ * @작성자 : 김선, 박혜정
  * @설명 : 칸반 리스트 제목 수정
  **/         
 $('#kanban').on('click', '.kanban-list-title', function() {
@@ -391,7 +410,7 @@ $('#kanban').on('click', '.kanban-list-title', function() {
     $('#listNameInput').focus();
 
     deleteIcon.hide(); // 휴지통 아이콘 숨기기
-	kanbanList.hide();//여기가 찐 보여지는 제목
+	kanbanList.hide();// 보여지는 제목
 	
 	$('#listNameInput').blur(function() {
 		if($(this).val() == "") {
@@ -434,7 +453,7 @@ $('#kanban').on('click', '.kanban-list-title', function() {
 
 /**
  * @함수명 : 익명함수
- * @작성자 : 김선
+ * @작성자 : 김선, 박혜정
  * @설명 : 칸반 리스트 삭제
  **/         
 $('#kanban').on('click', '.kanban-list-menu', function() {
@@ -577,9 +596,13 @@ $(document).on('click', "#addcard",function(){
     				 kanbanCardNo.attr('data-cardno', resData);
     			}
     		}); 
-        });  
-        
-        //새로 생성된 카드에 드래그 앤 드롭 적용
+		});  
+		
+		
+		/**
+		 * @작성자 : 김선
+		 * @설명 : 새로 생성된 카드에 Sortable 적용
+		 **/  
         $('.divForDragNDrop').sortable({
        	 connectWith: '.divForDragNDrop',
        	 start( event, ui ){
@@ -637,10 +660,6 @@ $(document).on('click', "#addcard",function(){
               				}
               		 });
               	 }
-//           	kanbanListArr = ui.item.parent().find('.kanban-list-content');
-//           	$.each(kanbanListArr, function(index, item){
-//           		$(item).attr('data-listindex', index); // 재정렬된 요소에 index 속성 새로 부여하기
-//           	});
        	 }
        	 
         });
@@ -737,6 +756,7 @@ $('#kanban').on('click', '.kanban-card-element', function() {
 			} 
 		});
 	 
+		
      //모달 리플 내용 유무 체크 후 뿌려주기 
 	 $.ajax({ 
 			url: "CardReplySelect.ajax",
@@ -753,7 +773,10 @@ $('#kanban').on('click', '.kanban-card-element', function() {
 		});
 
 
-	 //모달 실행시 파일 목록 뿌려주기
+	 /**
+	 * @작성자 : 김선
+	 * @설명 : 모달 실행시 파일 목록 뿌려주기
+	 **/ 
 	 $.ajax({ 
 			url: "cardFilesSelect.ajax",
 			data: {
@@ -1131,13 +1154,13 @@ $('#kanbanFileInputBtn').on('click',function(){
 	 
 	 $.ajax({ 
 		 		type: "POST", 
-		 		enctype: 'multipart/form-data', // 필수 
-		 		url: 'kanbanFilesUpload.ajax', //여기 작업중
-		 		data: formData,  // 필수
-		 		processData: false, // 필수 
-		 		contentType: false, // 필수 
+		 		enctype: 'multipart/form-data', 
+		 		url: 'kanbanFilesUpload.ajax', 
+		 		data: formData,  
+		 		processData: false, 
+		 		contentType: false, 
 		 		cache: false, 
-		 		success: function(resData) { // 여기 resData 파일 객체 가져오는걸로 바꿔야함
+		 		success: function(resData) { 
 		 			if(resData.length > 0){
 		 				
 		 				$.each(resData, function(index, item){
