@@ -17,7 +17,122 @@ public class KanbanAjaxController {
 	
 	@Autowired
 	private KanbanService service;
+
+
 	
+	/**
+	* @Method Name : resortKanbanList (칸반 리스트 재정렬)
+	* @작성자 : 김선
+	* @Method 설명 : 드래그앤 드랍으로 변경된 칸반리스트 index를 DB에 반영
+	* @param : int kanbanListNo
+	* @param : int startListIDX
+	* @param : int endListIDX
+	* @return : void
+	**/
+	@RequestMapping("resortKanbanList.ajax")
+	public void resortKanbanList(int kanbanListNo, int startListIDX, int endListIDX) {
+		service.resortKanbanList(kanbanListNo, startListIDX, endListIDX);
+	}
+
+	/**
+	* @Method Name : resortKanbanCard (칸반 카드 재정렬)
+	* @작성자 : 김선
+	* @Method 설명 : 드래그앤 드랍으로 변경된 칸반카드 index를 DB에 반영
+	* @param : int kanbanCardNo
+	* @param : int startListNo
+	* @param : int endListNo
+	* @param : int startCardIDX
+	* @param : int endCardIDX
+	* @return : void
+	**/
+	@RequestMapping("resortKanbanCard.ajax")
+	public void resortKanbanCard(int kanbanCardNo, int startListNo, int endListNo, int startCardIDX, int endCardIDX) {
+		service.resortKanbanCard(kanbanCardNo, startListNo, endListNo, startCardIDX, endCardIDX);
+	}
+
+	/**
+	* @Method Name : kanbanFilesUpload (칸반 카드에 파일 업로드)
+	* @작성자 : 김선, 이서영(cloud)
+	* @Method 설명 : 사용자가 업로드한 파일을 프로젝트 폴더 및 DB에 저장하고 클라우드에 업로드
+	* 			       비동기로 파일 목록을 업데이트 하기 위해 return값 필요
+	* @param : MultipartHttpServletRequest request
+	* @return : List<KanbanUpload>
+	**/
+	//카드 파일 업로드
+	@RequestMapping(value="kanbanFilesUpload.ajax", method=RequestMethod.POST)
+	public List<KanbanUpload> kanbanFilesUpload(MultipartHttpServletRequest request){
+		return service.kanbanFilesUpload(request);
+	}
+		
+	/**
+	* @Method Name : deleteKanbanCardFile (칸반 카드 업로드 파일 지우기)
+	* @작성자 : 김선
+	* @Method 설명 : 칸반카드에 업로드된 파일을 삭제
+	* @param : int fileNo
+	* @param : int cardNo
+	* @param : int teamNo
+	* @return : List<KanbanUpload>
+	**/
+	@RequestMapping("cardFilesDelete.ajax")
+	public List<KanbanUpload> deleteKanbanCardFile(int fileNo, int cardNo, int teamNo) {
+		return service.deleteKanbanCardFile(fileNo, cardNo, teamNo);
+	}
+
+	/**
+	* @Method Name : updateKanbanList (칸반 리스트 제목 업데이트)
+	* @작성자 : 김선
+	* @Method 설명 : kanbanlist 정보와 session으로 가져온 사용자 id를 사용해 칸반 리스트 제목을 업데이트
+	* @param : KanbanList kanbanlist
+	* @param : HttpSession session
+	* @return : KanbanList
+	**/
+	@RequestMapping("updateKanbanList.ajax")
+	public KanbanList updateKanbanList(KanbanList kanbanlist, HttpSession session) {
+		return service.updateKanbanListTitle(kanbanlist, session);
+	}
+	
+	/**
+	* @Method Name : deleteKanbanList (칸반 리스트 삭제)
+	* @작성자 : 김선
+	* @param : int kanbanListNo
+	* @return : void
+	**/
+	@RequestMapping("deleteKanbanList.ajax")
+	public void deleteKanbanList(int kanbanListNo) {
+		service.deleteKanbanList(kanbanListNo);
+	}
+	
+	/**
+	* @Method Name : deleteKanbanCard (칸반 카드 삭제)
+	* @작성자 : 김선
+	* @Method 설명 : 칸반카드 삭제
+	* @param : int cardNo
+	* @return : void
+	**/
+	//카드 삭제
+	@RequestMapping("deleteKanbanCard.ajax")
+	public void deleteKanbanCard(int cardNo) {
+		service.deleteKanbanCard(cardNo);
+	}
+		
+	/**
+	* @Method Name : getKanbanCardFiles (칸반 카드 파일 목록 가져오기)
+	* @작성자 : 김선
+	* @Method 설명 : 칸반카드에 업로드된 파일 목록을 가져옴
+	* @param : int cardNo
+	* @return : List<KanbanUpload>
+	**/
+	//카드 파일 목록 가져오기
+	@RequestMapping("cardFilesSelect.ajax")
+	public List<KanbanUpload> getKanbanCardFiles(int cardNo) {
+		return service.getKanbanCardFiles(cardNo);
+	}
+
+
+
+// =======================================
+
+
 	
 	/**
 	 * @Method Name : kanbanList
@@ -35,50 +150,6 @@ public class KanbanAjaxController {
 		String newKanbanListNoString = Integer.toString(newKanbanListNo);
 		return newKanbanListNoString;
 	}
-	
-
-	/**
-    * @Method Name : updateKanbanList (칸반 리스트 제목 업데이트)
-    * @작성자 : 김선
-    * @Method 설명 : kanbanlist 정보와 session으로 가져온 사용자 id를 사용해 칸반 리스트 제목을 업데이트
-    * @param : KanbanList kanbanlist
-    * @param : HttpSession session
-    * @return : KanbanList
-    **/
-	@RequestMapping("updateKanbanList.ajax")
-	public KanbanList updateKanbanList(KanbanList kanbanlist, HttpSession session) {
-		return service.updateKanbanListTitle(kanbanlist, session);
-	}
-	
-	/**
-    * @Method Name : deleteKanbanList (칸반 리스트 삭제)
-    * @작성자 : 김선
-    * @Method 설명 : kanbanlist 정보와 session으로 가져온 사용자 id를 사용해 칸반 리스트를 삭제
-    * @param : KanbanList kanbanlist
-    * @param : HttpSession session
-    * @return : void
-    **/
-	@RequestMapping("deleteKanbanList.ajax")
-	public void deleteKanbanList(int kanbanListNo) {
-		service.deleteKanbanList(kanbanListNo);
-	}
-	
-
-	/**
-    * @Method Name : resortKanbanList (칸반 리스트 재정렬)
-    * @작성자 : 김선
-    * @Method 설명 : 드래그앤 드랍으로 변경된 칸반리스트 index를 DB에 반영
-    * @param : int kanbanListNo
-    * @param : int startListIDX
-    * @param : int endListIDX
-    * @return : void
-    **/
-
-	@RequestMapping("resortKanbanList.ajax")
-	public void resortKanbanList(int kanbanListNo, int startListIDX, int endListIDX) {
-		service.resortKanbanList(kanbanListNo, startListIDX, endListIDX);
-	}
-	
 
 	/**
 	 * @Method Name : kanbanCardInsert
@@ -123,36 +194,6 @@ public class KanbanAjaxController {
 		service.insertCardReply(content, cardNo, id);
 	}
 
-	
-	/**
-    * @Method Name : deleteKanbanCard (칸반 카드 삭제)
-    * @작성자 : 김선
-    * @Method 설명 : 칸반카드 삭제
-    * @param : int cardNo
-    * @return : void
-    **/
-	//카드 삭제
-	@RequestMapping("deleteKanbanCard.ajax")
-	public void deleteKanbanCard(int cardNo) {
-		service.deleteKanbanCard(cardNo);
-	}
-	
-	/**
-    * @Method Name : resortKanbanCard (칸반 카드 재정렬)
-    * @작성자 : 김선
-    * @Method 설명 : 드래그앤 드랍으로 변경된 칸반카드 index를 DB에 반영
-    * @param : int kanbanCardNo
-    * @param : int startListNo
-    * @param : int endListNo
-    * @param : int startCardIDX
-    * @param : endCardIDX
-    * @return : void
-    **/
-	@RequestMapping("resortKanbanCard.ajax")
-	public void resortKanbanCard(int kanbanCardNo, int startListNo, int endListNo, int startCardIDX, int endCardIDX) {
-		service.resortKanbanCard(kanbanCardNo, startListNo, endListNo, startCardIDX, endCardIDX);
-	}
-	
 	//카드 리플 셀렉트
 	@RequestMapping("CardReplySelect.ajax")
 	public List<KanbanComment> getKanbanCommentList(int cardNo){
@@ -165,56 +206,12 @@ public class KanbanAjaxController {
 		service.updateCardReply(content, commentNo);
 	}
 
-	
-	/**
-    * @Method Name : kanbanFilesUpload (칸반 카드에 파일 업로드)
-    * @작성자 : 김선, 이서영(cloud)
-    * @Method 설명 : 사용자가 업로드한 파일을 프로젝트 폴더 및 DB에 저장하고 클라우드에 업로드
-    * 			       비동기로 파일 목록을 업데이트 하기 위해 return값 필요
-    * @param : MultipartHttpServletRequest request
-    * @return : List<KanbanUpload>
-    **/
-	//카드 파일 업로드
-	@RequestMapping(value="kanbanFilesUpload.ajax", method=RequestMethod.POST)
-	public List<KanbanUpload> kanbanFilesUpload(MultipartHttpServletRequest request){
-		return service.kanbanFilesUpload(request);
-	}
-	
 	//카드 리플 삭제
 	@RequestMapping("CardReplyDelete.ajax")
 	public void kanbanCardReplyDelete(int commentNo) {
 		service.deleteCardReply(commentNo);
 	}
-	
-	
-	/**
-    * @Method Name : getKanbanCardFiles (칸반 카드 파일 목록 가져오기)
-    * @작성자 : 김선
-    * @Method 설명 : 칸반카드에 업로드된 파일 목록을 가져옴
-    * @param : int cardNo
-    * @return : List<KanbanUpload>
-    **/
-	//카드 파일 목록 가져오기
-	@RequestMapping("cardFilesSelect.ajax")
-	public List<KanbanUpload> getKanbanCardFiles(int cardNo) {
-		return service.getKanbanCardFiles(cardNo);
-	}
-	
-	/**
-    * @Method Name : deleteKanbanCardFile (칸반 카드 업로드 파일 지우기)
-    * @작성자 : 김선
-    * @Method 설명 : 칸반카드에 업로드된 파일을 삭제
-    * @param : int fileNo
-    * @param : int cardNo
-    * @param : int teamNo
-    * @return : List<KanbanUpload>
-    **/
-	//카드 파일  삭제하기
-	@RequestMapping("cardFilesDelete.ajax")
-	public List<KanbanUpload> deleteKanbanCardFile(int fileNo, int cardNo, int teamNo) {
-		return service.deleteKanbanCardFile(fileNo, cardNo, teamNo);
-	}
-	
+		
 	//카드 드래그앤 드롭 시 위치 변경
 	@RequestMapping("StartDragCardUpdate.ajax")
 	public void dragCard(int[]cardNo , int[] cardIndex, int kanbanListNo) {
