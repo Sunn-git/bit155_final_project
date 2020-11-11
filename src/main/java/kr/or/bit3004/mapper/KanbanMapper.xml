@@ -2,6 +2,170 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="kr.or.bit3004.dao.KanbanDao">
+
+
+	<!-- resortKanbanList(int kanbanListNo, int startListIDX, int endListIDX) -->
+	<update id="updateKanbanListIndex">
+		UPDATE KANBAN_LIST
+		SET KANBAN_LIST_INDEX = #{endListIDX}
+		WHERE KANBAN_LIST_NO = #{kanbanListNo}	
+	</update>
+	
+	<update id="resortKanbanListIndexSTB">	
+	<![CDATA[
+		UPDATE KANBAN_LIST
+		SET `KANBAN_LIST_INDEX` = `KANBAN_LIST_INDEX` -1
+		WHERE (`KANBAN_LIST_INDEX` BETWEEN (#{startListIDX}+1) AND #{endListIDX})
+		AND `KANBAN_LIST_NO` != #{kanbanListNo}
+	]]>
+	</update>
+	
+	<update id="resortKanbanListIndexBTS">	
+	<![CDATA[
+		UPDATE KANBAN_LIST
+		SET `KANBAN_LIST_INDEX` = `KANBAN_LIST_INDEX` +1
+		WHERE (`KANBAN_LIST_INDEX` BETWEEN #{endListIDX} AND (#{startListIDX}-1))
+		AND `KANBAN_LIST_NO` != #{kanbanListNo}
+	]]>
+	</update>
+
+
+	<!-- resortKanbanCard(int kanbanCardNo, int startListNo, int endListNo, int startCardIDX, int endCardIDX) -->
+	<update id="updateKanbanCardIndex">
+		UPDATE KANBAN_CARD
+		SET CARD_INDEX = #{endCardIDX}
+		WHERE CARD_NO = #{kanbanCardNo}	
+	</update>
+	
+	<update id="resortKanbanCardIndexSTB">	
+	<![CDATA[
+		UPDATE KANBAN_CARD
+		SET `CARD_INDEX` = `CARD_INDEX` -1
+		WHERE (`CARD_INDEX` BETWEEN (#{startCardIDX}+1) AND #{endCardIDX})
+			AND `CARD_NO` != #{kanbanCardNo}			
+			AND (KANBAN_LIST_NO = #{endListNo})
+	]]>
+	</update>
+	
+	<update id="resortKanbanCardIndexBTS">	
+	<![CDATA[
+		UPDATE KANBAN_CARD
+		SET `CARD_INDEX` = `CARD_INDEX` +1
+		WHERE (`CARD_INDEX` BETWEEN #{endCardIDX} AND (#{startCardIDX}-1))
+			AND `CARD_NO` != #{kanbanCardNo}
+			AND (KANBAN_LIST_NO = #{endListNo})
+	]]>
+	</update>
+	
+	<update id="updateKanbanCardIndexBL">
+		UPDATE KANBAN_CARD
+		SET CARD_INDEX = #{endCardIDX},
+			KANBAN_LIST_NO = #{endListNo}
+		WHERE CARD_NO = #{kanbanCardNo}	
+	</update>
+	
+	<update id="resortStartKanbanCardIndex">	
+	<![CDATA[
+		UPDATE KANBAN_CARD
+		SET `CARD_INDEX` = `CARD_INDEX` -1
+		WHERE (`CARD_INDEX` > #{startCardIDX})
+			AND (KANBAN_LIST_NO = #{startListNo})
+	]]>
+	</update>
+	
+	<update id="resortEndKanbanCardIndex">	
+	<![CDATA[
+		UPDATE KANBAN_CARD
+		SET `CARD_INDEX` = `CARD_INDEX` +1
+		WHERE (`CARD_INDEX` >= #{endCardIDX})
+			AND (`CARD_NO` != #{kanbanCardNo})
+			AND (KANBAN_LIST_NO = #{endListNo})
+	]]>
+	</update>
+	
+	
+	<!-- kanbanFilesUpload(MultipartHttpServletRequest request) -->
+	<insert id="insertKanbanUploadFile" parameterType="kr.or.bit3004.kanban.KanbanUpload">
+		INSERT INTO BOARD_FILE (
+								ORIGIN_FILE_NAME,	
+								FILE_NAME,
+								FILE_SIZE,
+								FILE_PATH,
+								ALL_BOARD_LIST_NO,
+								CARD_NO	
+								)
+				VALUES (
+						#{originFileName},
+						#{fileName},
+						#{fileSize},
+						#{filePath},
+						#{allBoardListNo},
+						#{cardNo}	
+						)
+					
+	</insert>
+	
+	
+	<!-- deleteKanbanCardFile(int fileNo, int cardNo, int teamNo) -->
+	<select id="getAKanbanCardFile" resultType="kr.or.bit3004.kanban.KanbanUpload">
+		SELECT FILE_NO,
+			   ORIGIN_FILE_NAME,
+			   FILE_NAME,
+			   FILE_SIZE,
+			   ALL_BOARD_LIST_NO,
+			   CARD_NO
+		FROM BOARD_FILE
+		WHERE FILE_NO = #{fileNo}		   
+	</select>
+
+	<delete id="deleteKanbanCardFile">
+		DELETE
+		FROM BOARD_FILE
+		WHERE FILE_NO = #{fileNo}
+	</delete>
+	
+	
+	<!-- updateKanbanListTitle(KanbanList kanbanlist, HttpSession session) -->
+	<update id="updateKanbanListTitle">
+		update KANBAN_LIST 
+		set LIST_TITLE = #{listTitle} , 
+			id = #{id} 
+		where kanban_list_no = #{kanbanListNo}
+	</update>
+	
+	<select id="getAKanbanListByKanbanListNo" resultType="kr.or.bit3004.kanban.KanbanList">
+		SELECT KANBAN_LIST_NO, LIST_TITLE, ALL_BOARD_LIST_NO, ID
+		FROM KANBAN_LIST
+		WHERE KANBAN_LIST_NO = #{kanbanListNo}
+	</select>		
+	
+	
+	<!-- deleteKanbanList(int kanbanListNo) -->
+	<delete id="deleteKanbanList">
+		DELETE
+		FROM KANBAN_LIST
+		WHERE KANBAN_LIST_NO = #{kanbanListNo}
+	</delete>
+	
+	
+	<!-- deleteKanbanCard(int cardNo) -->
+	<delete id="deleteKanbanCard">
+		DELETE
+		FROM KANBAN_CARD
+		WHERE CARD_NO = #{cardNo}
+	</delete>
+	
+	<!-- getKanbanCardFiles(int cardNo) -->
+	<select id="getKanbanCardFiles" resultType="kr.or.bit3004.kanban.KanbanUpload">
+		SELECT FILE_NO,
+			   ORIGIN_FILE_NAME,
+			   FILE_NAME
+		FROM BOARD_FILE
+		WHERE CARD_NO = #{cardNo}		   
+	</select>
+	
+
+	<!--  -->	
 	<insert id="insertListTitle" parameterType="kr.or.bit3004.kanban.KanbanList">
 		INSERT INTO KANBAN_LIST (
 									KANBAN_LIST_INDEX, 
@@ -16,13 +180,20 @@
 						#{id}
 						)
 	</insert>
+
+	<select id="getANewKanbanListNo" resultType="int">
+		SELECT MAX(KANBAN_LIST_NO)
+		FROM KANBAN_LIST
+	</select>
 	
-	<update id="updateKanbanListTitle">
-		update KANBAN_LIST 
-		set LIST_TITLE = #{listTitle} , 
-			id = #{id} 
-		where kanban_list_no = #{kanbanListNo}
-	</update>
+
+
+
+<!-- ============================================================ -->
+
+
+
+	
 	
    	<select id="kanbanList" parameterType="kr.or.bit3004.kanban.KanbanList">
 	 select * from kanban_list 
@@ -59,32 +230,10 @@
 	 ORDER BY KANBAN_LIST_INDEX
 	</select>
 	
-	
-	<!-- delete kanban list -->
-	<delete id="deleteKanbanList">
-		DELETE
-		FROM KANBAN_LIST
-		WHERE KANBAN_LIST_NO = #{kanbanListNo}
-	</delete>
-	
-	<!-- getANewKanbanListNo -->
-	<select id="getANewKanbanListNo" resultType="int">
-		SELECT MAX(KANBAN_LIST_NO)
-		FROM KANBAN_LIST
-	</select>
-	
 	<select id="getANewCardNo" resultType="int">
 		SELECT MAX(card_no)
 		FROM KANBAN_Card
 	</select>
-	
-	<!--getAKanbanListByKanbanListNo  -->
-	<select id="getAKanbanListByKanbanListNo" resultType="kr.or.bit3004.kanban.KanbanList">
-		SELECT KANBAN_LIST_NO, LIST_TITLE, ALL_BOARD_LIST_NO, ID
-		FROM KANBAN_LIST
-		WHERE KANBAN_LIST_NO = #{kanbanListNo}
-	</select>
-	
 	
 	<insert id="insertCardTitle">
 	insert into kanban_card
@@ -109,11 +258,6 @@
 	insert into board_comment(content,write_date,id,card_no) values(#{content},now(),#{id},#{cardNo})
 	</insert>
 	
-	<delete id="deleteKanbanCard">
-		DELETE
-		FROM KANBAN_CARD
-		WHERE CARD_NO = #{cardNo}
-	</delete>
 	
 	<select id="getKanbanCommentList" resultType="kr.or.bit3004.comment.KanbanComment">
 		select b.comment_no, b.content, b.write_date, b.id, b.card_no , u.nickname, IFNULL(IMAGE, 'user.png') AS IMAGE
@@ -126,145 +270,18 @@
 	update board_comment set CONTENT = #{content} , write_date = now() where comment_no = #{commentNo}
 	</update>
 	
-	<insert id="insertKanbanUploadFile" parameterType="kr.or.bit3004.kanban.KanbanUpload">
-		INSERT INTO BOARD_FILE (
-								ORIGIN_FILE_NAME,	
-								FILE_NAME,
-								FILE_SIZE,
-								FILE_PATH,
-								ALL_BOARD_LIST_NO,
-								CARD_NO	
-								)
-				VALUES (
-						#{originFileName},
-						#{fileName},
-						#{fileSize},
-						#{filePath},
-						#{allBoardListNo},
-						#{cardNo}	
-						)
-					
-	</insert>
-	
 	<delete id="deleteCardReply">
 		DELETE
 		FROM board_comment
 		WHERE comment_no = #{commentNo}
 	</delete>
 	
-	<select id="getKanbanCardFiles" resultType="kr.or.bit3004.kanban.KanbanUpload">
-		SELECT FILE_NO,
-			   ORIGIN_FILE_NAME,
-			   FILE_NAME
-		FROM BOARD_FILE
-		WHERE CARD_NO = #{cardNo}		   
-	</select>
-			
-	<select id="getAKanbanCardFile" resultType="kr.or.bit3004.kanban.KanbanUpload">
-		SELECT FILE_NO,
-			   ORIGIN_FILE_NAME,
-			   FILE_NAME,
-			   FILE_SIZE,
-			   ALL_BOARD_LIST_NO,
-			   CARD_NO
-		FROM BOARD_FILE
-		WHERE FILE_NO = #{fileNo}		   
-	</select>
 	
-	<delete id="deleteKanbanCardFile">
-		DELETE
-		FROM BOARD_FILE
-		WHERE FILE_NO = #{fileNo}
-	</delete>
 	
 	<update id="dragCardUpdate" parameterType="kr.or.bit3004.kanban.KanbanCard">
 		update KANBAN_card
 		set card_index = #{cardIndex}, kanban_list_no = #{kanbanListNo} 
 		where card_no = #{cardNo} 
-	</update>
-
-	<update id="updateKanbanListIndex">
-		UPDATE KANBAN_LIST
-		SET KANBAN_LIST_INDEX = #{endListIDX}
-		WHERE KANBAN_LIST_NO = #{kanbanListNo}	
-	</update>
-	
-	
-	<update id="resortKanbanListIndexSTB">	
-	<![CDATA[
-		UPDATE KANBAN_LIST
-		SET `KANBAN_LIST_INDEX` = `KANBAN_LIST_INDEX` -1
-		WHERE (`KANBAN_LIST_INDEX` BETWEEN (#{startListIDX}+1) AND #{endListIDX})
-		AND `KANBAN_LIST_NO` != #{kanbanListNo}
-	]]>
-	</update>
-	
-
-	<update id="resortKanbanListIndexBTS">	
-	<![CDATA[
-		UPDATE KANBAN_LIST
-		SET `KANBAN_LIST_INDEX` = `KANBAN_LIST_INDEX` +1
-		WHERE (`KANBAN_LIST_INDEX` BETWEEN #{endListIDX} AND (#{startListIDX}-1))
-		AND `KANBAN_LIST_NO` != #{kanbanListNo}
-	]]>
-	</update>
-	
-	
-	<update id="updateKanbanCardIndex">
-		UPDATE KANBAN_CARD
-		SET CARD_INDEX = #{endCardIDX}
-		WHERE CARD_NO = #{kanbanCardNo}	
-	</update>
-	
-	<update id="resortKanbanCardIndexSTB">	
-	<![CDATA[
-		UPDATE KANBAN_CARD
-		SET `CARD_INDEX` = `CARD_INDEX` -1
-		WHERE (`CARD_INDEX` BETWEEN (#{startCardIDX}+1) AND #{endCardIDX})
-			AND `CARD_NO` != #{kanbanCardNo}			
-			AND (KANBAN_LIST_NO = #{endListNo})
-	]]>
-	</update>
-	
-
-	<update id="resortKanbanCardIndexBTS">	
-	<![CDATA[
-		UPDATE KANBAN_CARD
-		SET `CARD_INDEX` = `CARD_INDEX` +1
-		WHERE (`CARD_INDEX` BETWEEN #{endCardIDX} AND (#{startCardIDX}-1))
-			AND `CARD_NO` != #{kanbanCardNo}
-			AND (KANBAN_LIST_NO = #{endListNo})
-	]]>
-	</update>
-	
-	
-		
-	<update id="updateKanbanCardIndexBL">
-		UPDATE KANBAN_CARD
-		SET CARD_INDEX = #{endCardIDX},
-			KANBAN_LIST_NO = #{endListNo}
-		WHERE CARD_NO = #{kanbanCardNo}	
-	</update>
-	
-	
-	<update id="resortStartKanbanCardIndex">	
-	<![CDATA[
-		UPDATE KANBAN_CARD
-		SET `CARD_INDEX` = `CARD_INDEX` -1
-		WHERE (`CARD_INDEX` > #{startCardIDX})
-			AND (KANBAN_LIST_NO = #{startListNo})
-	]]>
-	</update>
-	
-
-	<update id="resortEndKanbanCardIndex">	
-	<![CDATA[
-		UPDATE KANBAN_CARD
-		SET `CARD_INDEX` = `CARD_INDEX` +1
-		WHERE (`CARD_INDEX` >= #{endCardIDX})
-			AND (`CARD_NO` != #{kanbanCardNo})
-			AND (KANBAN_LIST_NO = #{endListNo})
-	]]>
 	</update>
 	
 	<select id="boardNameSelect" resultMap="selectBoardName">
